@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.todo.back.mapper.ListMapper">
+    <insert id="postList" parameterType="String">
+        <![CDATA[
+            insert into list(title)
+            values (#{title})
+        ]]>
+    </insert>
+
+    <update id="putList" parameterType="HashMap">
+        <![CDATA[
+            update list
+            set title = #{title}
+            where idx = #{idx}
+        ]]>
+    </update>
+
+    <update id="putListCheck" parameterType="HashMap">
+        <![CDATA[
+            update list
+            set checked = #{check}
+            where idx = #{idx}
+        ]]>
+    </update>
+
+    <select id="getListAll" resultType="String">
+        <![CDATA[
+            select JSON_ARRAYAGG(
+                json_object(
+                'idx',idx,'title',title,'DateInserted',date_format(DateInserted,'%y-%m-%d'),'checked',if(checked,'checked','')
+                )
+            )
+
+            from list;
+        ]]>
+    </select>
+
+
+
+    <delete id="deleteList" parameterType="int">
+        <![CDATA[
+            delete from list
+            where idx=#{idx}
+        ]]>
+    </delete>
+
+
+
+
+</mapper>

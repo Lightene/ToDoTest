@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel='stylesheet' href='/stylesheets/style.css'/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.11.8/semantic.min.css"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/1.11.8/semantic.min.js"></script>
+
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+</head>
+<body>
+<div>
+
+    <div class="ui grid ">
+        <div class="row">
+            <div class="eight wide column">
+                <label>제목</label>
+                <input type="text" id="newListTitle"></br>
+                <input type="button" class="ui button" id="newList" onclick="postOnclick()" value="생성">
+            </div>
+        </div>
+        <div class="row">
+            <div class="eight wide column">
+                <table id="list-table" class="ui celled table">
+                    <thead>
+                    <tr>
+                        <th>idx</th>
+                        <th>title</th>
+                        <th>inserted date</th>
+                        <th>체크</th>
+                        <th>수정</th>
+                        <th>삭제</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <% if(data){ %>
+                        <% data.forEach((str)=>{ %>
+                            <tr id=<%- str.idx %>>
+                                <td><input type="text" class="input-idx" readonly value=<%- str.idx %>></td>
+                                <td><input type="text" class="input-title" value=<%- str.title %>></td>
+                                <td><%- str.DateInserted %></td>
+                                <td><input type="checkbox" name="<%- str.idx %>" <%- str.checked%>
+                                           onchange="onChangeCheck(this)"></td>
+                                <td><input type="button" class="ui primary button" onclick="putOnclick(this)"
+                                           value="수정">
+                                </td>
+                                <td><input type="button" class="ui button" onclick="deleteOnclick(<%- str.idx %>)"
+                                           value="삭제">
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% } %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript">
+        const documentOne = id => document.getElementById(id);
+
+
+        const postOnclick = () => {
+            const title = documentOne("newListTitle").value;
+
+            console.log('title :', title);
+
+            if (title.length === 0)
+                return alert("제목을 써주세요.");
+
+
+            axios.post('/list', {title: title})
+                .then(data => {
+                    // console.log(data);
+                    if (data.status === 200 && data.data !== 0)
+                        window.location.replace("/");
+                    else
+                        alert(data.status);
+                })
+                .catch(err => {
+                    alert(err);
+                })
+        }
+
+        const putOnclick = (e) => {
+            const ele = e.parentNode.parentElement;
+            const idx = ele.id;
+            const title = ele.querySelector('.input-title').value;
+            console.log(ele.querySelector('.input-idx').value);
+
+            axios({
+                method: 'PUT',
+                url: '/list',
+                data: {
+                    idx: idx,
+                    title: title
+                }
+            })
+                .then(data => {
+                    console.log(data);
+                    if (data.status === 200)
+                        window.location.replace("/");
+                    else
+                        alert("수정 실패");
+                })
+                .catch(err => {
+                    console.log(err);
+                })
+        }
+
+        const deleteOnclick = (e) => {
+            console.log(e);
+            axios({
+                method: 'DELETE',
+                url: '/list',
+                data: {
+                    idx: e
+                }
+            })
+                .then(data => {
+                    console.log(data);
+                    if (data.status === 200)
+                        window.location.replace("/");
+                })
+                .catch(err => {
+                    console.log(err);
+                    alert(err.status);
+                })
+        }
+
+        const onChangeCheck = (e) => {
+            console.log(e.checked);
+            axios({
+                method: 'PUT',
+                url: '/list/check',
+                data: {
+                    idx: e.name,
+                    check: e.checked
+                }
+            })
+                .then(data => {
+                    // console.log(data);
+                    if (data.status === 200)
+                        window.location.replace("/");
+                })
+                .catch(err => {
+                    console.log(err);
+                    alert(err.status);
+                })
+        }
+    </script>
+</div>
+</body>
+</html>
